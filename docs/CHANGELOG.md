@@ -1,6 +1,6 @@
 # Changelog
 
-## 18.10.2026 - Version 1.3
+## 19.10.2026 - Version 2.0
 
 ### Neu
 - Die Module benötigen jetzt IP-Symcon 9.0.
