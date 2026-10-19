@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-class AnelDiscovery extends IPSModule
+class AnelDiscovery extends IPSModuleStrict
 {
     /**
      * The maximum number of seconds that will be allowed for the discovery request.
      */
-    const WS_DISCOVERY_TIMEOUT = 5;
-    const WS_DISCOVERY_MULTICAST_ADDRESS = '255.255.255.255';
-    const WS_DISCOVERY_MULTICAST_PORT = 75;
+    public const WS_DISCOVERY_TIMEOUT = 5;
+    public const WS_DISCOVERY_MULTICAST_ADDRESS = '255.255.255.255';
+    public const WS_DISCOVERY_MULTICAST_PORT = 75;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -19,24 +19,17 @@ class AnelDiscovery extends IPSModule
         $this->RegisterPropertyString('Username', 'admin');
         $this->RegisterPropertyString('Password', 'anel');
 
-        // Only required for pre 5.5
-        if (floatval(IPS_GetKernelVersion()) < 5.5) {
-            $this->RegisterTimer('LoadDevicesTimer', 0, 'ANEL_discoverDevices($_IPS["TARGET"]);');
-        }
-
         $this->SetBuffer('discoveredDevices', json_encode([]));
         $this->SetBuffer('SearchActive', json_encode(false));
-
-        $this->RegisterMessage(0, IPS_KERNELSTARTED);
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
     }
 
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         $Devices = json_decode($this->GetBuffer('discoveredDevices'), true);
@@ -45,12 +38,8 @@ class AnelDiscovery extends IPSModule
             $this->SetBuffer('SearchActive', json_encode(true));
 
             // Start device search in a timer, not prolonging the execution of GetConfigurationForm
-            if (floatval(IPS_GetKernelVersion()) < 5.5) {
-                $this->SetTimerInterval('LoadDevicesTimer', 200);
-            } else {
-                $this->SendDebug('Start', 'OnceTimer', 0);
-                $this->RegisterOnceTimer('LoadDevicesTimer', 'ANEL_discoverDevices($_IPS["TARGET"]);');
-            }
+            $this->SendDebug('Start', 'OnceTimer', 0);
+            $this->RegisterOnceTimer('LoadDevicesTimer', 'ANEL_discoverDevices($_IPS["TARGET"]);');
         }
 
         $Form['actions'][0]['visible'] = count($Devices) == 0;
@@ -58,13 +47,12 @@ class AnelDiscovery extends IPSModule
         return json_encode($Form);
     }
 
-    public function discoverDevices()
+    public function discoverDevices(): void
     {
         $this->LogMessage($this->Translate('Discovery in progress'), KL_NOTIFY);
         $discoveryTimeout = time() + self::WS_DISCOVERY_TIMEOUT;
         $discoveryMessage = 'wer da?';
         $discoveryPort = self::WS_DISCOVERY_MULTICAST_PORT;
-        $discoveryList = [];
 
         $Values = [];
 
@@ -82,12 +70,12 @@ class AnelDiscovery extends IPSModule
             }
             $this->SendDebug('Receive from', $from, 0);
             $this->SendDebug('Receive', $response, 0);
-            $response = explode(':', utf8_decode($response));
+            $response = explode(':', mb_convert_encoding($response, 'ISO-8859-1', 'UTF-8'));
             $instanceID = $this->getAnelInstances($from);
 
             $AddValue = [
                 'IPAddress'             => $from,
-                'name'                  => $response[1],
+                'name'                  => $response[1] ?? '',
                 'instanceID'            => $instanceID
             ];
 
@@ -107,19 +95,15 @@ class AnelDiscovery extends IPSModule
         } while (time() < $discoveryTimeout);
         socket_close($sock);
 
-        if (floatval(IPS_GetKernelVersion()) < 5.5) {
-            $this->SetTimerInterval('LoadDevicesTimer', 0);
-        }
         $this->SetBuffer('SearchActive', json_encode(false));
         $this->SetBuffer('discoveredDevices', json_encode($Values));
-        $this->UpdateFormField('configurator', 'values', json_encode($Values));
+        $this->UpdateFormField('Configurator', 'values', json_encode($Values));
         $this->UpdateFormField('searchingInfo', 'visible', false);
 
         $this->LogMessage($this->Translate('Discovery progress done'), KL_NOTIFY);
-        return;
     }
 
-    private function getAnelInstances($IPAddress)
+    private function getAnelInstances(string $IPAddress): int
     {
         $InstanceIDs = IPS_GetInstanceListByModuleID('{13F0B37E-30C9-C043-A5AC-2D9B6A90E9F2}');
         foreach ($InstanceIDs as $id) {
