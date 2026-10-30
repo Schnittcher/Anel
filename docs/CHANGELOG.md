@@ -14,3 +14,37 @@
 - Relais und IOs werden nur noch angelegt, wenn das Gerät sie meldet.
 - Die Zugangsdaten stehen nicht mehr im Debug.
 - Der Konfigurator zeigt die gefundenen Geräte wieder zuverlässig an.
+
+## 01.09.2021 - Version 1.2.2
+
+### Fixes
+- Es gab Probleme, wenn Werte von einem Anel Gerät nicht gesendet wurden.
+
+## 17.08.2020 - Version 1.2
+
+### Neu
+- IOs müssen nun aktiviert werden, wenn sie angezeigt werden sollen
+- Gerätetemperatur muss nun aktiviert werden, wenn sie angezeigt werden soll
+
+### Fixes
+- Discovery Instanz überarbeitet
+
+## 17.07.2020 - Version 1.1
+
+### Neu
+- Sensor hinzugefügt
+
+## 23.01.2020 - Version 1.0.2 (Beta)
+
+### Fixes
+- Discovery
+
+## 23.01.2020 - Version 1.0.1
+
+### Fixes
+- IOs
+
+## 21.01.2020 - Version 1.0
+
+### Neu
+- Erste Version
