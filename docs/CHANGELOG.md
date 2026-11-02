@@ -14,6 +14,7 @@
 - Relais und IOs werden nur noch angelegt, wenn das Gerät sie meldet.
 - Die Zugangsdaten stehen nicht mehr im Debug.
 - Der Konfigurator zeigt die gefundenen Geräte wieder zuverlässig an.
+- Der Dokumentationslink der Instanzen führt jetzt zur Dokumentation auf deinsmarthome.info.
 
 ## 01.09.2021 - Version 1.2.2
 
